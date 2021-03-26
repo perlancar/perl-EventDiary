@@ -1,0 +1,203 @@
+package EventDiary; # just to make PodWeaver happy
+
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
+
+1;
+# ABSTRACT: Write event diaries conveniently
+
+=head1 SPECIFICATION STATUS
+
+The 0.1.x version series is still unstable.
+
+
+=head1 SPECIFICATION VERSION
+
+0.1
+
+
+=head1 DESCRIPTION
+
+This document specifies a format of text diary called "EventDiary" geared
+towards writing short entries and optimized for convenience writing by humans,
+especially when typing on devices like touchscreen phones.
+
+
+=head1 GLOSSARY
+
+=head2 document
+
+A document is a series of entries, comment lines, or blank lines.
+
+=head2 comment line
+
+A comment line is a non-blank line that starts with C<#> (hash) character. It is
+ignored.
+
+=head2 blank line
+
+A blank line is a line that does not contain any character or contains only
+whitespace characters.
+
+=head2 entry
+
+An entry is a single non-blank line or a single paragraph that contains a
+timestamp, event name, and optionally a content:
+
+ <WS>* <TIMESTAMP> <WS>+ <EVENT> ( <WS>+ <CONTENT> )?
+
+An entry can be represented programmatically with a hash (key-value pairs).
+Aside from C<timestamp>, C<event> (event name), and C<content> (raw content
+which is whatever after the timestamp and event name), other keys can be
+extracted from the raw content through predefined patterns.
+
+If there is no blank line in the document, entries are assumed to be single
+lines. Otherwise, entries must be written as paragraphs: non-blank lines
+separated by at least a single blank line, or hanging paragraphs (first line not
+indented, subsequent lines indented).
+
+Examples:
+
+ 0510 urinate v100
+
+Timestamp is 0510 (05:10), event is "urinate", and raw content is "v100". From
+this, another key-pair can be extracted: C<volume: 100>.
+
+ 1120 c I feel dizzy and hungry, but can still work and think. I think I will
+   continue fasting until past noon.
+
+Timestamp is 1120 (11:20), event is "c" (comment), and the rest is the raw
+content (newline removed): "I feel dizzy and hungry, but can still work and
+think. I think I will continue fasting until past noon."
+
+=head2 timestamp
+
+Either time of day in the format of:
+
+ hhmm
+ hh:mm
+ hhmmss
+ hh:mm:ss
+
+examples:
+
+ 1130
+ 11:30
+ 113000
+ 11:30:00
+
+or date in the format of:
+
+ YYYY-MM-DD
+ MMMD
+ DMMM
+ DMMMYY
+ DMMMYYYY
+
+where MMM is abbreviated month name in English, examples:
+
+ 2021-03-26
+ 2021-03-01
+ mar26
+ mar01
+ mar1
+ 26mar
+ 1mar
+ 01mar
+ 01mar21
+ 1mar2021
+
+or date + time of day in the format of:
+
+ YYYY-MM-DD"T"<hh:mm>
+ YYYY-MM-DD"T"<hh:mm:ss>
+ <date> <WS>+ <time>
+
+where C<< <date> >> and C<< <time> >> are all allowed date formats and
+time-of-day formats, respectively. Examples:
+
+ 2021-03-26T11:30
+ 2021-03-26T11:30:00
+ 26mar 1130
+
+
+=head1 FAQ
+
+=head2 What if I want to write a multiparagraph entry?
+
+TBD
+
+
+======================================================================
+
+=head1 DESCRIPTION
+
+
+=head1 GLOSSARY
+
+=head1 EVENT DIARY SPECIFICATION
+
+Diary is a text containing lines of B<entries> or paragraphs of entries. If
+there is a blank line, entries are assumed to be in paragraphs; otherwise they
+are assumed to be single line each. When entries are written in paragraphs, they
+will be reformatted to be single lines first during parsing.
+
+Each entry begins with a B<timestamp>. Timestamp is one of:
+
+ YYYY-MM-DD"T"hh:mm
+ YYYY-MM-DD"T"hh:mm-H2:m2
+ hh:mm
+ hh:mm-h2:m2
+ hhmm
+ hhmm-h2m2
+
+where hh is in 24-hour format. Examples:
+
+ 2020-12-14T10:12
+ 10:12
+ 1012
+ 10:12-10:24
+
+Entries must be written chronologically.
+
+After timestamp, whitespace (one or more spaces) and B<event name> must appear.
+Examples of event name: C<urinate>, C<drink> (for a bladder diary), C<sleep>,
+C<wake>, C<rise> (for a sleep diary).
+
+Only known events, which are defined in the diary specification, are allowed.
+
+An event name can have aliases (usually shorthand), e.g. C<u> for C<urinate>,
+C<d> for C<drink>, and so on.
+
+After an event name, free text can follow (e.g. description, comment, etc).
+Attributes (pairs of name and values separated by C<=>) will be extracted from
+the free text. Attribute name should be a single word (/\b\w+\b/) while value
+can be double-quoted text or text that is ended by the nearest comma, semicolon,
+or period. Examples:
+
+ 0915 drink type=tea vol=300, pretty thirsty.
+
+Attributes are "type" (value "tea") and "vol" (value 300).
+
+ 0915 d type=tea vol=300, comment="pretty thirsty, haven't drunk for a few
+ hours"
+
+Attributes are "type" (value "tea"), "vol" (value 300), and "comment" (value
+"pretty thirsty, haven't drunk for a few hours").
+
+The diary specification also defines what keys are allowed and the type (schema)
+of each key.
+
+To ease typing, patterns can also be defined to extract keys and values from the
+free text. For example /\bv\d+\b/ is defined as a shorthand to write the C<vol>
+key:
+
+ 0915 d v300
+
+
+=head1 KEYWORDS
+
+
+=head1 SEE ALSO
